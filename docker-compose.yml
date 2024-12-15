@@ -1,0 +1,32 @@
+services:
+    mysql:
+      image: mysql:8.0.28
+      platform: linux/amd64
+      container_name: mysql
+      ports:
+        - "3306:3306"
+      environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: development
+        TZ: "Asia/Tokyo"
+      volumes:
+        - ./app/internal/infrastructure/mysql/db/my.cnf:/etc/mysql/conf.d/my.cnf
+      networks:
+        - app_network
+
+    go-app:
+      container_name: "go-app"
+      build: ./app/docs/develop
+      volumes:
+        - ./:/repo
+      ports:
+        - "8080:8080"
+      networks:
+        - app_network
+      depends_on:
+        - mysql
+      tty: true         # コンテナにTTYを割り当てる
+      stdin_open: true  # 標準入力を開いたままにする
+networks:
+  app_network:
+    driver: bridge
